@@ -5,15 +5,11 @@ using UnityEngine;
 public class FontTexture : MonoBehaviour
 {  
     [SerializeField]
-    private Font  testFont;
+    private Font baseFont;
 
-    void Start()
+    public Texture GetTexture(string text)
     {
-        
-    }
+        return null;
 
-    void Update()
-    {
-        
     }
 }

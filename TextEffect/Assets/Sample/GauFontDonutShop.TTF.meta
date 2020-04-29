@@ -12,7 +12,7 @@ TrueTypeFontImporter:
   fontNames:
   - GauFontDonutShop
   fallbackFontReferences: []
-  customCharacters: 
+  customCharacters: testest
   fontRenderingMode: 0
   ascentCalculationMode: 1
   useLegacyBoundsCalculation: 0
