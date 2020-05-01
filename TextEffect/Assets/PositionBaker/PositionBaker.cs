@@ -11,22 +11,39 @@ public class PositionBaker : MonoBehaviour
     int positionCount = 0;
     ComputeBuffer buf;
 
+    public RenderTexture BakeMap => bakeMap;
 
     private void Start()
     {
         
     }
 
-    public void BakePositionMap(List<Vector3> posList)
+    private void OnDestroy()
+    {
+        if (buf != null)
+        {
+            buf.Dispose();
+            buf = null;
+        }
+
+        if (tmpMap != null)
+        {
+            Destroy(tmpMap);
+            tmpMap = null;
+        }
+    }
+
+    public void BakePositionMap(List<Vector3> posList, Transform target)
     {
         if (posList == null || posList.Count == 0)
             return;
 
+        positionCount = posList.Count * 3;
+        Debug.Log("座標数" + positionCount.ToString() + " ,幅と高さ" + bakeMap.width * bakeMap.height);
+
         if (CheckConsistency())
             return;
 
-        positionCount = posList.Count * 3;
-        
         if (positionCount > bakeMap.width * bakeMap.height)
         {
             Debug.LogError("リストの要素が多すぎます。\n要素数を少なくするかベイクするテクスチャサイズを大きくしてください。");
@@ -37,11 +54,12 @@ public class PositionBaker : MonoBehaviour
         Debug.Log("カーネル番号 " + kernel);
 
         buf.SetData(posList);
+        compute.SetMatrix("Transform", target.localToWorldMatrix);
         compute.SetInt("PositionCount", positionCount);
         compute.SetBuffer(kernel, "PositionBuffer", buf);
         compute.SetTexture(kernel, "PositionMap", tmpMap);
         compute.Dispatch(kernel, bakeMap.width / 8, bakeMap.height / 8, 1);
-        
+
         Graphics.CopyTexture(tmpMap, bakeMap);
     }
 
@@ -73,6 +91,8 @@ public class PositionBaker : MonoBehaviour
             tmpMap.enableRandomWrite = true;
             tmpMap.Create();
         }
+
+        buf = new ComputeBuffer(positionCount, sizeof(float));
 
         return false;
     }

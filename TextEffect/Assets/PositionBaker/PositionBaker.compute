@@ -4,19 +4,30 @@ uint PositionCount;
 float4x4 Transform;
 
 StructuredBuffer<float> PositionBuffer;
-
 RWTexture2D<float4> PositionMap;
+
+uint Hash(uint s)
+{
+	s ^= 2747636419u;
+	s *= 2654435769u;
+	s ^= s >> 16;
+	s *= 2654435769u;
+	s ^= s >> 16;
+	s *= 2654435769u;
+	return s;
+}
 
 [numthreads(8, 8, 1)]
 void PositionData(uint2 id : SV_DispatchThreadID)
 {
+	uint i = Hash(id.x + id.y * 65536) % PositionCount;
+
 	float3 p = float3
 	(
-		PositionBuffer[0],
-		PositionBuffer[1],
-		PositionBuffer[2]
+		PositionBuffer[i*3],
+		PositionBuffer[i*3 + 1],
+		PositionBuffer[i*3 + 2]
 	);
 
-	p = mul(Transform, float4(p, 1)).xyz;
-
+	PositionMap[id] = float4(p, 1);
 }
