@@ -7,25 +7,17 @@ using System.Linq;
 
 public class TextMeshVFX : MonoBehaviour
 {
-    [SerializeField]
-    private Font baseFont;
-    [SerializeField]
-    private int resolution;
+    [SerializeField] Font baseFont = null;
+    [SerializeField] ComputeShader compute = null;
+    [SerializeField] TMP_InputField inputText = null;
+    
+    [SerializeField] RenderTexture positionMap;
+    [SerializeField] RenderTexture positionPrevMap;
 
-    [SerializeField]
-    private TMP_InputField inputText;
-    [SerializeField]
-    private string activeText = "";
-    [SerializeField]
-    private RawImage[] rawImages;
-    [SerializeField]
-    private RenderTexture positionTex;
-    [SerializeField]
-    private RenderTexture oldTextRenderTex;
-    [SerializeField]
-    private RawImage totalTextImage;
+    [SerializeField] string activeText = "";
 
-
+    private RenderTexture tmpPositionMap;
+    private ComputeBuffer buffer;
     private Texture2D newTextTexture;
     private Texture2D oldTextTexture;
 
@@ -36,17 +28,22 @@ public class TextMeshVFX : MonoBehaviour
 
     void Start()
     {
-        if (positionTex == null || 
-            oldTextRenderTex == null || 
-            positionTex.width != oldTextRenderTex.width || 
-            positionTex.height != oldTextRenderTex.height)
+        if (positionMap == null || 
+            positionPrevMap == null || 
+            positionMap.width != positionPrevMap.width || 
+            positionMap.height != positionPrevMap.height)
         {
             Destroy(gameObject);
             return;
         }
 
-        renderWidth = positionTex.width;
-        renderHeight = positionTex.height;
+        int kernel = compute.FindKernel("PositionData");
+        Debug.Log("カーネル" + kernel);
+        compute.Dispatch(kernel, 1, 1, 1);
+        Debug.Log("カーネル" + kernel);
+
+        renderWidth = positionMap.width;
+        renderHeight = positionMap.height;
     }
 
     private void Update()
@@ -57,23 +54,15 @@ public class TextMeshVFX : MonoBehaviour
     void OnDestroy()
     {
     }
-
-    void OnFontTextureRebuilt(Font changedFont)
+    
+    /// <summary>
+    /// ベイクする前のチェック
+    /// </summary>
+    void BakeCheck()
     {
-        Debug.Log("Rebuild");
-        if (changedFont != baseFont)
-            return;
-
-        RebuildMesh();
-    }
-
-    void RebuildMesh()
-    {
-        Debug.Log("BuildMesh");
 
     }
 
-    //#endif
 
     public void OnEditEnd(string str)
     {
@@ -131,50 +120,62 @@ public class TextMeshVFX : MonoBehaviour
             
             Debug.Log("幅" + wid.ToString() + "," + "高さ" + hei.ToString());
 
+            int min = 0;
+            int max = 0;
+
             for (int j = 0; j < wid; j++)
             {
+                //Debug.Log(basePosition);
+
                 for (int k = 0; k < hei; k++)
                 {
                     var c = copyTex.GetPixel(left + (j * dirX), bottom + (k * dirY));
                     if (c.a > 0.01f)
                     {
-                        positionList.Add(
-                            new Vector3(
-                                (float)(basePosition + j) / renderWidth,
-                                (float)k / renderHeight,
-                                0.0f));
+                        var p = new Vector3(basePosition + j, k, 0.0f);
+                        positionList.Add(p);
+                        min = p.x < min || min == 0 ? basePosition + j : min;
+                        max = p.x > max || max == 0 ? basePosition + j : max;
                     }
-                    
+
                     characterTexList[i].SetPixel(j, k, new Color(1.0f,1.0f,1.0f, c.a));
                 }
             }
 
             characterTexList[i].Apply();
-            rawImages[i].texture = characterTexList[i];
 
-            basePosition += tex.width;
+            if (min != 0 && max != 0)
+                basePosition += ch.advance;
         }
 
+        var maxHeight = positionList.Select(position => position.y).Max();
+
         var tmpTexture = new Texture2D(renderWidth, renderHeight);
+
         for (int i = 0; i < positionList.Count; i++)
         {
-            var p = positionList[i];
-            Debug.Log(p);
- 
-            var widthIdx = (i / renderHeight) % renderWidth;
+            var p = new Vector3(
+                positionList[i].x / basePosition,
+                positionList[i].y / maxHeight,
+                0.0f);
+
+            var widthIdx = i / renderHeight % renderWidth;
             var heightIdx = i % renderHeight;
-            Debug.Log(widthIdx.ToString()+" , "+heightIdx.ToString());
+            Debug.Log(widthIdx.ToString() + " , " + heightIdx.ToString() + " : " + p.ToString("F2"));
             tmpTexture.SetPixel(widthIdx, heightIdx, new Color(p.x, p.y, 0.0f, 1.0f));
         }
 
         tmpTexture.Apply();
-        RenderTexture.active = positionTex;
-        Graphics.Blit(tmpTexture, positionTex);
+        RenderTexture.active = positionMap;
+        Graphics.Blit(tmpTexture, positionMap);
 
 
+        if (buffer == null)
+        {
+            buffer = new ComputeBuffer(positionList.Count * 3, sizeof(float));
+        }
 
         //var basePosition = 0;
-        //var maxHeight = characterTexList.Select(x => x.height).Max();
         //newTextTexture = new Texture2D(renderWidth, renderHeight,TextureFormat.ARGB32 ,false);
 
         //Debug.Log("最大の高さ   " + maxHeight);

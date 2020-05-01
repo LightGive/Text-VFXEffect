@@ -1,0 +1,22 @@
+﻿#pragma kernel PositionData
+
+uint PositionCount;
+float4x4 Transform;
+
+StructuredBuffer<float> PositionBuffer;
+
+RWTexture2D<float4> PositionMap;
+
+[numthreads(8, 8, 1)]
+void PositionData(uint2 id : SV_DispatchThreadID)
+{
+	float3 p = float3
+	(
+		PositionBuffer[0],
+		PositionBuffer[1],
+		PositionBuffer[2]
+	);
+
+	p = mul(Transform, float4(p, 1)).xyz;
+
+}
