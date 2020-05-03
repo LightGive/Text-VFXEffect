@@ -9,6 +9,7 @@ using System.Linq;
 public class TextMeshVFX : MonoBehaviour
 {
     [SerializeField] Font baseFont = null;
+    [SerializeField] TMP_FontAsset baseFontTmp = null;
     [SerializeField] TMP_InputField inputText = null;
     [SerializeField] PositionBaker baker = null;
     [SerializeField] PositionBaker preBaker = null;
@@ -58,7 +59,9 @@ public class TextMeshVFX : MonoBehaviour
         var pos = Vector3.zero;
 
         //フォントのテクスチャ
-        var tex = (Texture2D)baseFont.material.mainTexture;
+        //var tex = (Texture2D)baseFont.material.mainTexture;
+        var tex = (Texture2D)baseFontTmp.atlas;
+
 
         //文字毎のテクスチャ
         var characterTexList = new List<Texture2D>();
@@ -73,6 +76,7 @@ public class TextMeshVFX : MonoBehaviour
             Vector2[] uv = new Vector2[4];
             CharacterInfo ch;
             baseFont.GetCharacterInfo(currentText[i], out ch);
+            
 
             vertices[4 * i + 0] = pos + new Vector3(ch.minX, ch.maxY, 0);
             vertices[4 * i + 1] = pos + new Vector3(ch.maxX, ch.maxY, 0);
@@ -88,9 +92,8 @@ public class TextMeshVFX : MonoBehaviour
 
             var left = Mathf.FloorToInt(ch.uvBottomLeft.x * tex.width);
             var bottom = Mathf.FloorToInt(ch.uvBottomLeft.y * tex.height);
-            var right = Mathf.FloorToInt(ch.uvBottomRight.x * tex.width);
+            var right = Mathf.FloorToInt(ch.uvTopRight.x * tex.width);
             var top = Mathf.FloorToInt(ch.uvTopRight.y * tex.height);
-
             Debug.Log("Left:" + left.ToString() + " Bottom:" + bottom + ToString() + " Right:" + right.ToString() + " Top:" + top.ToString());
             var dirX = right > left ? 1 : -1;
             var dirY = top > bottom ? 1 : -1;

@@ -466,15 +466,15 @@ VisualEffect:
   m_PropertySheet:
     m_Float:
       m_Array:
-      - m_Value: 10
+      - m_Value: 20
         m_Name: Size
         m_Overridden: 1
     m_Vector2f:
       m_Array:
-      - m_Value: {x: 1, y: 1}
+      - m_Value: {x: 1, y: 0.9}
         m_Name: CurrentSize
         m_Overridden: 1
-      - m_Value: {x: 1, y: 1}
+      - m_Value: {x: 1, y: 0.9}
         m_Name: PreSize
         m_Overridden: 1
     m_Vector3f:
@@ -503,7 +503,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 350819699}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -7, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -1447,13 +1447,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1429686017}
-  m_LocalRotation: {x: 0.1531715, y: -0, z: -0, w: 0.98819965}
-  m_LocalPosition: {x: 0, y: 18.3, z: -44.1}
+  m_LocalRotation: {x: 0.034027316, y: 0, z: 0, w: 0.99942094}
+  m_LocalPosition: {x: 0, y: 10.8, z: -24.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 17.622002, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 3.9, y: 0, z: 0}
 --- !u!1 &1484117652
 GameObject:
   m_ObjectHideFlags: 0
