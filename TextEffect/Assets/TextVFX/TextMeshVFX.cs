@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.VFX;
 using TMPro;
 using System.Linq;
+using System;
 
 public class TextMeshVFX : MonoBehaviour
 {
@@ -55,12 +56,11 @@ public class TextMeshVFX : MonoBehaviour
 
         baseFont.RequestCharactersInTexture(preText + currentText);
 
-        var vertices = new Vector3[currentText.Length * 4];
         var pos = Vector3.zero;
 
         //フォントのテクスチャ
         //var tex = (Texture2D)baseFont.material.mainTexture;
-        var tex = (Texture2D)baseFontTmp.atlas;
+        var tex = (Texture2D)baseFontTmp.material.mainTexture;
 
 
         //文字毎のテクスチャ
@@ -70,30 +70,41 @@ public class TextMeshVFX : MonoBehaviour
         var basePosition = 0;
         List<Vector3> positionList = new List<Vector3>();
 
+        if(!baseFontTmp.HasCharacters(str))
+        {
+            Debug.Log("フォントに無い文字があります");
+            return;
+        }
+
+
         //1文字ずつ確認
         for (int i = 0; i < currentText.Length; i++)
         {
-            Vector2[] uv = new Vector2[4];
             CharacterInfo ch;
             baseFont.GetCharacterInfo(currentText[i], out ch);
-            
-
-            vertices[4 * i + 0] = pos + new Vector3(ch.minX, ch.maxY, 0);
-            vertices[4 * i + 1] = pos + new Vector3(ch.maxX, ch.maxY, 0);
-            vertices[4 * i + 2] = pos + new Vector3(ch.maxX, ch.minY, 0);
-            vertices[4 * i + 3] = pos + new Vector3(ch.minX, ch.minY, 0);
-
-            uv[0] = ch.uvTopLeft;
-            uv[1] = ch.uvTopRight;
-            uv[2] = ch.uvBottomRight;
-            uv[3] = ch.uvBottomLeft;
 
             pos += new Vector3(ch.advance, 0, 0);
+
+            //var left = Mathf.FloorToInt(ch.uvBottomLeft.x * tex.width);
+            //var bottom = Mathf.FloorToInt(ch.uvBottomLeft.y * tex.height);
+            //var right = Mathf.FloorToInt(ch.uvTopRight.x * tex.width);
+            //var top = Mathf.FloorToInt(ch.uvTopRight.y * tex.height);
+
+            //var chara = baseFontTmp.characterTable.Select(x=>x.unicode == )
+
+            var charaText =  currentText[i];
+            
+
+            string debugStr = "";
+            baseFontTmp.characterTable.ForEach(x => { debugStr += x.unicode.ToString() + " "; });
+            Debug.Log(debugStr);
+
 
             var left = Mathf.FloorToInt(ch.uvBottomLeft.x * tex.width);
             var bottom = Mathf.FloorToInt(ch.uvBottomLeft.y * tex.height);
             var right = Mathf.FloorToInt(ch.uvTopRight.x * tex.width);
             var top = Mathf.FloorToInt(ch.uvTopRight.y * tex.height);
+
             Debug.Log("Left:" + left.ToString() + " Bottom:" + bottom + ToString() + " Right:" + right.ToString() + " Top:" + top.ToString());
             var dirX = right > left ? 1 : -1;
             var dirY = top > bottom ? 1 : -1;

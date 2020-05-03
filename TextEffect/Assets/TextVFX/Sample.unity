@@ -1204,7 +1204,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 4294967295
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!23 &1356573842
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1568,6 +1568,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseFont: {fileID: 12800000, guid: adb22a98849d11a43b2a242f41fce391, type: 3}
+  baseFontTmp: {fileID: 11400000, guid: e6d69425c6985734e987a55c5813550f, type: 2}
   inputText: {fileID: 1122886596}
   baker: {fileID: 1096902209}
   preBaker: {fileID: 356324962}
