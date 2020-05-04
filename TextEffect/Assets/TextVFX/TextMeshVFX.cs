@@ -9,13 +9,12 @@ using System;
 
 public class TextMeshVFX : MonoBehaviour
 {
-    [SerializeField] Font baseFont = null;
     [SerializeField] TMP_FontAsset baseFontTmp = null;
     [SerializeField] TMP_InputField inputText = null;
     [SerializeField] PositionBaker baker = null;
     [SerializeField] PositionBaker preBaker = null;
     [SerializeField] VisualEffect effect;
-    
+    [SerializeField] RawImage rawImag;
 
     string currentText = "";
     string preText = "";
@@ -30,21 +29,6 @@ public class TextMeshVFX : MonoBehaviour
     private int renderWidth = 0;
     private int renderHeight = 0;
 
-    //#if true
-
-    void Start()
-    {
-    }
-
-    private void Update()
-    {
-        baseFont.RequestCharactersInTexture(currentText);
-    }
-
-    void OnDestroy()
-    {
-    }
-
     public void OnEditEnd(string str)
     {
         if (string.IsNullOrEmpty(str))
@@ -53,15 +37,8 @@ public class TextMeshVFX : MonoBehaviour
         preText = currentText;
         currentText = str;
 
-
-        baseFont.RequestCharactersInTexture(preText + currentText);
-
-        var pos = Vector3.zero;
-
         //フォントのテクスチャ
-        //var tex = (Texture2D)baseFont.material.mainTexture;
         var tex = (Texture2D)baseFontTmp.material.mainTexture;
-
 
         //文字毎のテクスチャ
         var characterTexList = new List<Texture2D>();
@@ -76,74 +53,54 @@ public class TextMeshVFX : MonoBehaviour
             return;
         }
 
+        byte[] data = System.Text.Encoding.Unicode.GetBytes(str);
+
 
         //1文字ずつ確認
         for (int i = 0; i < currentText.Length; i++)
         {
-            CharacterInfo ch;
-            baseFont.GetCharacterInfo(currentText[i], out ch);
+            var findCharaList = baseFontTmp.characterTable
+                .Select((x, idx) => new { Index = idx, Content = x })
+                .Where(x => (int)x.Content.unicode == data[i])
+                .Select(x => x.Index);
 
-            pos += new Vector3(ch.advance, 0, 0);
+            Debug.Log("Index"+findCharaList.First().ToString("0"));
 
-            //var left = Mathf.FloorToInt(ch.uvBottomLeft.x * tex.width);
-            //var bottom = Mathf.FloorToInt(ch.uvBottomLeft.y * tex.height);
-            //var right = Mathf.FloorToInt(ch.uvTopRight.x * tex.width);
-            //var top = Mathf.FloorToInt(ch.uvTopRight.y * tex.height);
-
-            //var chara = baseFontTmp.characterTable.Select(x=>x.unicode == )
-
-            var charaText =  currentText[i];
-            
-
-            string debugStr = "";
-            baseFontTmp.characterTable.ForEach(x => { debugStr += x.unicode.ToString() + " "; });
-            Debug.Log(debugStr);
-
-
-            var left = Mathf.FloorToInt(ch.uvBottomLeft.x * tex.width);
-            var bottom = Mathf.FloorToInt(ch.uvBottomLeft.y * tex.height);
-            var right = Mathf.FloorToInt(ch.uvTopRight.x * tex.width);
-            var top = Mathf.FloorToInt(ch.uvTopRight.y * tex.height);
-
-            Debug.Log("Left:" + left.ToString() + " Bottom:" + bottom + ToString() + " Right:" + right.ToString() + " Top:" + top.ToString());
-            var dirX = right > left ? 1 : -1;
-            var dirY = top > bottom ? 1 : -1;
-
-            var wid = Mathf.Abs(right - left);
-            var hei = Mathf.Abs(top - bottom);
-
-            var copyTex = new Texture2D(tex.width, tex.height, tex.format, false);
-            Graphics.CopyTexture(tex, copyTex);
-
-            characterTexList[i] = new Texture2D(wid, hei,TextureFormat.ARGB32, false);
-            
-            Debug.Log("幅" + wid.ToString() + "," + "高さ" + hei.ToString());
-
-            int min = 0;
-            int max = 0;
-
-            for (int j = 0; j < wid; j++)
+            if (findCharaList.Count() <= 0)
+                continue;
+            else if(findCharaList.Count() >1)
             {
-                for (int k = 0; k < hei; k++)
+                Debug.LogError("対象の文字データが複数存在する");
+            }
+            // **Debug
+            //string debugStr = "";
+            //foreach (var a in baseFontTmp.characterTable)
+            //    debugStr += a.unicode.ToString("0") + " " + a.glyphIndex.ToString("0") + ",    ";
+            //Debug.Log(debugStr);
+
+            var rec = baseFontTmp.characterTable[findCharaList.First()].glyph.glyphRect;
+            characterTexList[i] = new Texture2D(rec.width, rec.height, TextureFormat.ARGB32, false);
+
+            for (int j = 0; j < rec.width; j++)
+            {
+                for (int k = 0; k < rec.height; k++)
                 {
-                    var c = copyTex.GetPixel(left + (j * dirX), bottom + (k * dirY));
-                    if (c.a > 0.01f)
+                    Color c = Color.black;
+                    var pixelColor = baseFontTmp.atlasTexture.GetPixel(rec.x + j, rec.y + k);
+
+                    if (pixelColor.a > 0.5f)
                     {
+                        c = Color.white;
                         var p = new Vector3(basePosition + j, k, 0.0f);
                         positionList.Add(p);
-
-                        min = p.x < min || min == 0 ? basePosition + j : min;
-                        max = p.x > max || max == 0 ? basePosition + j : max;
                     }
-
-                    characterTexList[i].SetPixel(j, k, new Color(1.0f,1.0f,1.0f, c.a));
+                    characterTexList[i].SetPixel(j, k, c);
                 }
             }
-
             characterTexList[i].Apply();
 
-            if (min != 0 && max != 0)
-                basePosition += ch.advance;
+            basePosition += rec.width;
+            rawImag.texture = characterTexList[i];
         }
 
 
@@ -176,59 +133,6 @@ public class TextMeshVFX : MonoBehaviour
         Graphics.CopyTexture(baker.BakeMap, preBaker.BakeMap);
         baker.BakePositionMap(positionList, effect.transform);
 
-        //var maxHeight = positionList.Select(position => position.y).Max();
-
-        //var tmpTexture = new Texture2D(renderWidth, renderHeight);
-
-        //for (int i = 0; i < positionList.Count; i++)
-        //{
-        //    var p = new Vector3(
-        //        positionList[i].x / basePosition,
-        //        positionList[i].y / maxHeight,
-        //        0.0f);
-
-        //    var widthIdx = i / renderHeight % renderWidth;
-        //    var heightIdx = i % renderHeight;
-        //    Debug.Log(widthIdx.ToString() + " , " + heightIdx.ToString() + " : " + p.ToString("F2"));
-        //    tmpTexture.SetPixel(widthIdx, heightIdx, new Color(p.x, p.y, 0.0f, 1.0f));
-        //}
-
-        //tmpTexture.Apply();
-        //RenderTexture.active = positionMap;
-        //Graphics.Blit(tmpTexture, positionMap);
-
-
-        //var basePosition = 0;
-        //newTextTexture = new Texture2D(renderWidth, renderHeight,TextureFormat.ARGB32 ,false);
-
-        //Debug.Log("最大の高さ   " + maxHeight);
-
-        ////TextureからRenderTextureへ変換
-        //for (int i = 0; i < characterTexList.Count; i++)
-        //{
-        //    var c = characterTexList[i];
-
-        //    for (int j = 0; j < c.width && (basePosition + j) < renderWidth; j++)
-        //    {
-        //        for (int k = 0; k < c.height && k < renderHeight; k++)
-        //        {
-        //            var color = c.GetPixel(j, k);
-
-
-        //            var resultColor = Color.black;
-        //            if (color.a > 0.01f)
-        //            {
-        //                resultColor = new Color((float)(basePosition + j) / renderWidth, (float)k / renderHeight, 0.0f);
-        //                Debug.Log(resultColor);
-        //            }
-
-        //            newTextTexture.SetPixel(basePosition + j, k, resultColor);
-        //        }
-        //    }
-        //    basePosition += c.width;
-        //}
-        //newTextTexture.Apply();
-        //totalTextImage.texture = newTextTexture;
 
     }
 }

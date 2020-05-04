@@ -51,7 +51,6 @@ public class PositionBaker : MonoBehaviour
         }
 
         int kernel = compute.FindKernel("PositionData");
-        Debug.Log("カーネル番号 " + kernel);
 
         buf.SetData(posList);
         compute.SetMatrix("Transform", target.localToWorldMatrix);
@@ -92,6 +91,11 @@ public class PositionBaker : MonoBehaviour
             tmpMap.Create();
         }
 
+        if(buf!= null)
+        {
+            buf.Dispose();
+            buf = null;
+        }
         buf = new ComputeBuffer(positionCount, sizeof(float));
 
         return false;
