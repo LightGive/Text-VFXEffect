@@ -53,25 +53,34 @@ public class TextMeshVFX : MonoBehaviour
             return;
         }
 
-        byte[] data = System.Text.Encoding.Unicode.GetBytes(str);
 
+        //byte[] data = System.Text.Encoding.GetEncoding(932).GetBytes(str);
 
         //1文字ずつ確認
         for (int i = 0; i < currentText.Length; i++)
         {
+            var data = Convert.ToInt32(currentText[i]);
             var findCharaList = baseFontTmp.characterTable
                 .Select((x, idx) => new { Index = idx, Content = x })
-                .Where(x => (int)x.Content.unicode == data[i])
+                .Where(x => (int)x.Content.unicode == data)
                 .Select(x => x.Index);
 
-            Debug.Log("Index"+findCharaList.First().ToString("0"));
-
             if (findCharaList.Count() <= 0)
+            {
+                Debug.LogError("対象の文字データが存在しない");
                 continue;
-            else if(findCharaList.Count() >1)
+            }
+            else if (findCharaList.Count() > 1)
             {
                 Debug.LogError("対象の文字データが複数存在する");
+                continue;
             }
+
+            Debug.Log("Data: " + 
+                data.ToString("0000") + "\n" +
+                data.ToString("X4") + "\n");
+            Debug.Log("Index: " + findCharaList.First().ToString("0"));
+
             // **Debug
             //string debugStr = "";
             //foreach (var a in baseFontTmp.characterTable)

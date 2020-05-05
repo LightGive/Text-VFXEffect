@@ -70,6 +70,8 @@ public class PositionBaker : MonoBehaviour
             return true;
         }
 
+        
+
         if (bakeMap.width % 8 != 0 || bakeMap.height % 8 != 0)
         {
             Debug.LogError("RenderTextureのサイズは8の倍数にして下さい");
