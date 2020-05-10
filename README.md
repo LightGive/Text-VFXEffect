@@ -1,5 +1,5 @@
 # Text-VFXEffect
-<img src="https://imgur.com/CxktVqH">
+![gif](https://imgur.com/CxktVqH)
 Enter a short text in the input field and the content will be displayed in VFXEffect.
 
 ## Version
