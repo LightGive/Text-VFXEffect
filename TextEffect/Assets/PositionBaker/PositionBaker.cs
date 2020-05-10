@@ -49,12 +49,8 @@ public class PositionBaker : MonoBehaviour
         if (CheckConsistency())
             return;
 
-        Debug.Log("座標数" + positionCount.ToString() + " ,幅と高さ" + bakeMap.width * bakeMap.height);
-
-
         if (positionCount > bakeMap.width * bakeMap.height)
         {
-            Debug.Log(positionCount);
             Debug.LogError("リストの要素が多すぎます。\n要素数を少なくするかベイクするテクスチャサイズを大きくしてください。");
             return;
         }

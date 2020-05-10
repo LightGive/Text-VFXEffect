@@ -69,11 +69,6 @@ public class TextMeshVFX : MonoBehaviour
                 continue;
             }
 
-            //Debug.Log("Data: " + 
-            //    data.ToString("0000") + "\n" +
-            //    data.ToString("X4") + "\n");
-            //Debug.Log("Index: " + findCharaList.First().ToString("0"));
-
             var rec = baseFontTmp.characterTable[findCharaList.First()].glyph.glyphRect;
             characterTexList[i] = new Texture2D(rec.width, rec.height, TextureFormat.ARGB32, false);
 
@@ -98,7 +93,6 @@ public class TextMeshVFX : MonoBehaviour
             basePosition += rec.width;
             rawImag.texture = characterTexList[i];
         }
-
 
         if (positionList.Count == 0)
         {
