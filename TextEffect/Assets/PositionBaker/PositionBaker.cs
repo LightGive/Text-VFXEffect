@@ -1,22 +1,23 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
+/// <summary>
+/// Vector3のリストをRenderTextureに焼きこむ
+/// </summary>
 public class PositionBaker : MonoBehaviour
 {
-    [SerializeField] ComputeShader compute = null;
-    [SerializeField] RenderTexture bakeMap = null;
+    [SerializeField] 
+    private ComputeShader compute = null;
+    [SerializeField] 
+    private RenderTexture bakeMap = null;
 
-    RenderTexture tmpMap;
-    int positionCount = 0;
-    ComputeBuffer buf;
+    private RenderTexture tmpMap;
+    private int positionCount = 0;
+    private ComputeBuffer buf;
 
     public RenderTexture BakeMap => bakeMap;
-
-    private void Start()
-    {
-        
-    }
 
     private void OnDestroy()
     {
@@ -39,22 +40,30 @@ public class PositionBaker : MonoBehaviour
             return;
 
         positionCount = posList.Count * 3;
-        Debug.Log("座標数" + positionCount.ToString() + " ,幅と高さ" + bakeMap.width * bakeMap.height);
+        for (int i = positionCount; i+3 < bakeMap.width * bakeMap.height; i += 3)
+        {
+            posList.Add(posList[i / 3 % (positionCount / 3)]);
+        }
+        positionCount = posList.Count * 3;
 
         if (CheckConsistency())
             return;
 
+        Debug.Log("座標数" + positionCount.ToString() + " ,幅と高さ" + bakeMap.width * bakeMap.height);
+
+
         if (positionCount > bakeMap.width * bakeMap.height)
         {
+            Debug.Log(positionCount);
             Debug.LogError("リストの要素が多すぎます。\n要素数を少なくするかベイクするテクスチャサイズを大きくしてください。");
             return;
         }
 
         int kernel = compute.FindKernel("PositionData");
-
         buf.SetData(posList);
+
         compute.SetMatrix("Transform", target.localToWorldMatrix);
-        compute.SetInt("PositionCount", positionCount);
+        compute.SetInt("PositionCount", posList.Count);
         compute.SetBuffer(kernel, "PositionBuffer", buf);
         compute.SetTexture(kernel, "PositionMap", tmpMap);
         compute.Dispatch(kernel, bakeMap.width / 8, bakeMap.height / 8, 1);
@@ -70,15 +79,13 @@ public class PositionBaker : MonoBehaviour
             return true;
         }
 
-        
-
         if (bakeMap.width % 8 != 0 || bakeMap.height % 8 != 0)
         {
             Debug.LogError("RenderTextureのサイズは8の倍数にして下さい");
             return true;
         }
 
-        if(bakeMap.format != RenderTextureFormat.ARGBFloat)
+        if (bakeMap.format != RenderTextureFormat.ARGBFloat)
         {
             Debug.LogError("RenderTextureのフォーマットはARGBFloatにして下さい");
             return true;

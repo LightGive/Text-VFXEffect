@@ -12,14 +12,11 @@ public class TextMeshVFX : MonoBehaviour
     [SerializeField] TMP_FontAsset baseFontTmp = null;
     [SerializeField] TMP_InputField inputText = null;
     [SerializeField] PositionBaker baker = null;
-    [SerializeField] PositionBaker preBaker = null;
     [SerializeField] VisualEffect effect;
     [SerializeField] RawImage rawImag;
 
     string currentText = "";
-    string preText = "";
     Vector2 currentSize;
-    Vector2 preSize;
 
     private RenderTexture tmpPositionMap;
     private ComputeBuffer buffer;
@@ -34,7 +31,6 @@ public class TextMeshVFX : MonoBehaviour
         if (string.IsNullOrEmpty(str))
             return;
 
-        preText = currentText;
         currentText = str;
 
         //フォントのテクスチャ
@@ -52,9 +48,6 @@ public class TextMeshVFX : MonoBehaviour
             Debug.Log("フォントに無い文字があります");
             return;
         }
-
-
-        //byte[] data = System.Text.Encoding.GetEncoding(932).GetBytes(str);
 
         //1文字ずつ確認
         for (int i = 0; i < currentText.Length; i++)
@@ -76,16 +69,10 @@ public class TextMeshVFX : MonoBehaviour
                 continue;
             }
 
-            Debug.Log("Data: " + 
-                data.ToString("0000") + "\n" +
-                data.ToString("X4") + "\n");
-            Debug.Log("Index: " + findCharaList.First().ToString("0"));
-
-            // **Debug
-            //string debugStr = "";
-            //foreach (var a in baseFontTmp.characterTable)
-            //    debugStr += a.unicode.ToString("0") + " " + a.glyphIndex.ToString("0") + ",    ";
-            //Debug.Log(debugStr);
+            //Debug.Log("Data: " + 
+            //    data.ToString("0000") + "\n" +
+            //    data.ToString("X4") + "\n");
+            //Debug.Log("Index: " + findCharaList.First().ToString("0"));
 
             var rec = baseFontTmp.characterTable[findCharaList.First()].glyph.glyphRect;
             characterTexList[i] = new Texture2D(rec.width, rec.height, TextureFormat.ARGB32, false);
@@ -124,10 +111,7 @@ public class TextMeshVFX : MonoBehaviour
         var maxHeight = positionList.Select(position => position.y).Max();
         var maxWidth = basePosition;
 
-        preSize = currentSize;
         currentSize = new Vector2(maxWidth / maxHeight,1.0f);
-
-        effect.SetVector2("PreSize", preSize);
         effect.SetVector2("CurrentSize", currentSize);
 
         for (int i = 0; i < positionList.Count; i++)
@@ -139,9 +123,6 @@ public class TextMeshVFX : MonoBehaviour
         positionList.ForEach(x => log += x.ToString("F2")+"\n");
         Debug.Log(log);
 
-        Graphics.CopyTexture(baker.BakeMap, preBaker.BakeMap);
         baker.BakePositionMap(positionList, effect.transform);
-
-
     }
 }

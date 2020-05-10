@@ -1,0 +1,22 @@
+﻿#pragma kernel PositionData
+
+uint PositionCount;
+uint Width;
+
+StructuredBuffer<float> PositionBuffer;
+RWTexture2D<float4> PositionMap;
+
+[numthreads(8, 8, 1)]
+void PositionData(uint2 id : SV_DispatchThreadID)
+{
+	uint index = id.y * PositionCount + id.x;
+	uint lastIndex = PositionBuffer.Length - 1;
+
+	float3 pos;
+	if (index > lastIndex && lastIndex != 0) 
+	{
+		index = (index * 132049U) % lastIndex;
+	}
+	pos = PositionBuffer[index];
+	PositionMap[id.xy] = float4 (pos.x, pos.y, pos.z, 1);
+}
