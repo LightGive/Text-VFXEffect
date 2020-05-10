@@ -1,11 +1,9 @@
 # Text-VFXEffect
 
+Enter a short text in the input field and the content will be displayed in VFXEffect.
 
 ## Version
-Unity 2019.3.12f1
-
-## Description
-Enter a short text in the input field and the content will be displayed in VFXEffect.
+Unity 2019.3.12f
 
 ## Method
 
