@@ -1,7 +1,7 @@
 # Text-VFXEffect
 ![my image](Sample.gif)
 
-Enter a short text in the input field and the content will be displayed in VFXEffect.
+Enter a short text in the input field and the content will be displayed in VFXEffect!
 
 ## Version
 Unity 2019.3.12f
