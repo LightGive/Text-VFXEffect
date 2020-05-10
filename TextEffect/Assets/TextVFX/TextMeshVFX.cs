@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.VFX;
@@ -17,14 +16,6 @@ public class TextMeshVFX : MonoBehaviour
 
     string currentText = "";
     Vector2 currentSize;
-
-    private RenderTexture tmpPositionMap;
-    private ComputeBuffer buffer;
-    private Texture2D newTextTexture;
-    private Texture2D oldTextTexture;
-
-    private int renderWidth = 0;
-    private int renderHeight = 0;
 
     public void OnEditEnd(string str)
     {
@@ -100,8 +91,6 @@ public class TextMeshVFX : MonoBehaviour
             return;
         }
 
-        Debug.Log(positionList.Count);
-
         var maxHeight = positionList.Select(position => position.y).Max();
         var maxWidth = basePosition;
 
@@ -112,11 +101,7 @@ public class TextMeshVFX : MonoBehaviour
         {
             positionList[i] = new Vector3(positionList[i].x / maxWidth, positionList[i].y / maxHeight, 0.0f);
         }
-        
-        var log = "";
-        positionList.ForEach(x => log += x.ToString("F2")+"\n");
-        Debug.Log(log);
-
+ 
         baker.BakePositionMap(positionList, effect.transform);
     }
 }

@@ -1,22 +1,18 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 /// <summary>
 /// Vector3のリストをRenderTextureに焼きこむ
 /// </summary>
 public class PositionBaker : MonoBehaviour
 {
-    [SerializeField] 
-    private ComputeShader compute = null;
-    [SerializeField] 
-    private RenderTexture bakeMap = null;
+    [SerializeField] ComputeShader compute = null;
+    [SerializeField] RenderTexture bakeMap = null;
 
-    private RenderTexture tmpMap;
-    private int positionCount = 0;
-    private ComputeBuffer buf;
-
+    RenderTexture tmpMap;
+    ComputeBuffer buf;
+    int positionCount = 0;
+    
     public RenderTexture BakeMap => bakeMap;
 
     private void OnDestroy()
