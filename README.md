@@ -1,6 +1,4 @@
 # Text-VFXEffect
-![gif](https://i.imgur.com/CxktVqH.gifv)
-
 ![my image](Sample.gif)
 
 Enter a short text in the input field and the content will be displayed in VFXEffect.
