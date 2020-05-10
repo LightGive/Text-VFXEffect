@@ -12,10 +12,8 @@ public class TextMeshVFX : MonoBehaviour
     [SerializeField] TMP_InputField inputText = null;
     [SerializeField] PositionBaker baker = null;
     [SerializeField] VisualEffect effect;
-    [SerializeField] RawImage rawImag;
 
     string currentText = "";
-    Vector2 currentSize;
 
     public void OnEditEnd(string str)
     {
@@ -80,9 +78,7 @@ public class TextMeshVFX : MonoBehaviour
                 }
             }
             characterTexList[i].Apply();
-
             basePosition += rec.width;
-            rawImag.texture = characterTexList[i];
         }
 
         if (positionList.Count == 0)
@@ -94,8 +90,12 @@ public class TextMeshVFX : MonoBehaviour
         var maxHeight = positionList.Select(position => position.y).Max();
         var maxWidth = basePosition;
 
-        currentSize = new Vector2(maxWidth / maxHeight,1.0f);
-        effect.SetVector2("CurrentSize", currentSize);
+        if (effect)
+        {
+            effect.SetVector2("Size", new Vector2(maxWidth, maxHeight));
+            Debug.Log("size" + maxWidth);
+            effect.SetVector2("SizeAspect", new Vector2(maxWidth / maxHeight, 1.0f));
+        }
 
         for (int i = 0; i < positionList.Count; i++)
         {

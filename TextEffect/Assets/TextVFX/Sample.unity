@@ -481,6 +481,12 @@ VisualEffect:
       - m_Value: {x: 1, y: 0.9}
         m_Name: PreSize
         m_Overridden: 1
+      - m_Value: {x: 15, y: 0}
+        m_Name: Size
+        m_Overridden: 1
+      - m_Value: {x: 1, y: 1}
+        m_Name: SizeAspect
+        m_Overridden: 1
     m_Vector3f:
       m_Array: []
     m_Vector4f:
@@ -1126,13 +1132,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1429686017}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -34.8}
+  m_LocalRotation: {x: 0, y: 0.38268343, z: 0, w: 0.92387956}
+  m_LocalPosition: {x: 0, y: 3, z: -18.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 45, z: 0}
 --- !u!1 &1484117652
 GameObject:
   m_ObjectHideFlags: 0
@@ -1250,7 +1256,6 @@ MonoBehaviour:
   inputText: {fileID: 1122886596}
   baker: {fileID: 1096902209}
   effect: {fileID: 350819701}
-  rawImag: {fileID: 1727483764}
 --- !u!1 &1704700645
 GameObject:
   m_ObjectHideFlags: 0
